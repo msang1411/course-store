@@ -19,17 +19,21 @@ const getAllAccountServers = async (req, res, next) => {
 
 const registerAccountServer = async (req, res, next) => {
   try {
-    const check = await accountServerService.registerAccountServer(
+    const result = await accountServerService.registerAccountServer(
       req.value.body
     );
-    if (check)
+    if (result.status) {
+      // thuong khong nen de token vao body json, thuong se de vao header
+      res.setHeader("Authorization", result.token);
+      return res.status(403).json({
+        status: 403,
+        message: "account has been register",
+        token: result.token,
+      });
+    } else
       return res
         .status(200)
-        .json({ status: 200, message: "account has been register" });
-    else
-      return res
-        .status(200)
-        .json({ status: 200, message: "that account already exists !" });
+        .json({ status: 403, message: "that account already exists !" });
   } catch (err) {
     return res.status(500).json({ status: 500, message: err.message });
   }
@@ -87,10 +91,32 @@ const deleteAccountServer = async (req, res, next) => {
   }
 };
 
+const signIn = (req, res, next) => {
+  console.log("check");
+};
+
+const signUp = async (req, res, next) => {
+  try {
+    const check = await accountServerService.signUp(req.value.body);
+    if (check)
+      return res
+        .status(200)
+        .json({ status: 200, message: "account has been register" });
+    else
+      return res
+        .status(200)
+        .json({ status: 200, message: "that account already exists !" });
+  } catch (err) {
+    return res.status(500).json({ status: 500, message: err.message });
+  }
+};
+
 module.exports = {
   getAllAccountServers,
   registerAccountServer,
   getAccountServerById,
   updateAccountServer,
   deleteAccountServer,
+  signIn,
+  signUp,
 };

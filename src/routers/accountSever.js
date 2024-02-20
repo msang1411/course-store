@@ -34,4 +34,17 @@ router
     AccountServerController.deleteAccountServer
   );
 
+router
+  .route("/sign-in")
+  .post(
+    accountServerValidate(schemas.authSignInSchema),
+    AccountServerController.signIn
+  );
+router
+  .route("/sign-up")
+  .post(
+    accountServerValidate(schemas.authSignUpSchema),
+    AccountServerController.signUp
+  );
+
 module.exports = router;

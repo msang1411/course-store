@@ -42,6 +42,7 @@ const accountServerValidate = (schema) => {
     }
   };
 };
+
 const schemas = {
   idSchema: Joi.object().keys({
     id: Joi.string()
@@ -58,6 +59,15 @@ const schemas = {
   accountOptionalSchema: Joi.object().keys({
     email: Joi.string().email().lowercase(),
     password: Joi.string().min(4).max(32),
+  }),
+  // authentication
+  authSignInSchema: Joi.object().keys({
+    email: Joi.string().email().lowercase().required(),
+    password: Joi.string().min(4).max(32).required(),
+  }),
+  authSignUpSchema: Joi.object().keys({
+    email: Joi.string().email().lowercase().required(),
+    password: Joi.string().min(4).max(32).required(),
   }),
 };
 
