@@ -30,8 +30,14 @@ const paramsValidate = (schema, name) => {
 // };
 
 const accountServerValidate = (schema) => {
+  let result;
   return (req, res, next) => {
-    const result = schema.validate(req.body.accountServer);
+    if (req.body.accountServer != null) {
+      result = schema.validate(req.body.accountServer);
+    } else {
+      result = schema.validate(req.body);
+    }
+    //const result = schema.validate(req.body.accountServer);
     if (result.error)
       res.status(400).json({ status: 400, message: result.error });
     else {

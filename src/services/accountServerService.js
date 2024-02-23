@@ -17,8 +17,7 @@ const registerAccountServer = async (account) => {
       return { status: false };
     } else {
       let newAccount = new AccountServer(account);
-      // tam thoi khong tao moi
-      //await newAccount.save();
+      await newAccount.save();
       // encode token
       const token = Auth.encodeToken(newAccount._id);
       return { status: true, token: token };
@@ -61,7 +60,33 @@ const deleteAccountServer = async (accountId) => {
   }
 };
 
-const signIn = () => {};
+const signIn = async (signInAccount) => {
+  try {
+    const account = await AccountServer.findOne({
+      email: signInAccount.email,
+      password: signInAccount.password,
+    });
+
+    if (account == null)
+      return {
+        status: false,
+        data: null,
+        token: null,
+        message: "account not already exist!",
+      };
+
+    // encode token
+    const token = Auth.encodeToken(account._id);
+    return {
+      status: true,
+      data: account,
+      token: token,
+      message: "sign in!",
+    };
+  } catch (error) {
+    throw Error("Error in signIn");
+  }
+};
 
 const signUp = async (account) => {
   try {

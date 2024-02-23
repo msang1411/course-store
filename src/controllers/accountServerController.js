@@ -32,7 +32,7 @@ const registerAccountServer = async (req, res, next) => {
       });
     } else
       return res
-        .status(200)
+        .status(403)
         .json({ status: 403, message: "that account already exists !" });
   } catch (err) {
     return res.status(500).json({ status: 500, message: err.message });
@@ -91,21 +91,50 @@ const deleteAccountServer = async (req, res, next) => {
   }
 };
 
-const signIn = (req, res, next) => {
-  console.log("check");
+const signIn = async (req, res, next) => {
+  try {
+    const result = await accountServerService.signIn(req.user);
+    if (result.status) {
+      // thuong khong nen de token vao body json, thuong se de vao header
+      res.setHeader("Authorization", result.token);
+      return res.status(400).json({
+        status: 400,
+        message: "account has been sign in",
+        token: result.token,
+      });
+    } else
+      return res
+        .status(403)
+        .json({ status: 403, message: "that account already not exists !" });
+  } catch (err) {
+    return res.status(500).json({ status: 500, message: err.message });
+  }
 };
 
 const signUp = async (req, res, next) => {
   try {
-    const check = await accountServerService.signUp(req.value.body);
-    if (check)
+    const result = await accountServerService.signUp(req.value.body);
+    if (result.status) {
+      // thuong khong nen de token vao body json, thuong se de vao header
+      res.setHeader("Authorization", result.token);
+      return res.status(401).json({
+        status: 401,
+        message: "account has been register",
+        token: result.token,
+      });
+    } else
       return res
-        .status(200)
-        .json({ status: 200, message: "account has been register" });
-    else
-      return res
-        .status(200)
-        .json({ status: 200, message: "that account already exists !" });
+        .status(403)
+        .json({ status: 403, message: "that account already exists !" });
+  } catch (err) {
+    return res.status(500).json({ status: 500, message: err.message });
+  }
+};
+
+// use to test
+const secret = (req, res, next) => {
+  try {
+    return res.status(200).json({ status: 200, message: "check secret !" });
   } catch (err) {
     return res.status(500).json({ status: 500, message: err.message });
   }
@@ -119,4 +148,5 @@ module.exports = {
   deleteAccountServer,
   signIn,
   signUp,
+  secret,
 };
