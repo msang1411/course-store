@@ -4,6 +4,9 @@ const bodyParser = require("body-parser");
 require("dotenv").config();
 const accountServerRouter = require("./routers/accountSever");
 
+// error
+const { errorHandlingMiddleware } = require("./middlewares/errorHandling");
+
 const app = express();
 const port = process.env.PORT || 8080;
 
@@ -12,35 +15,26 @@ app.use(morgan("dev"));
 app.use(bodyParser.json());
 
 // Database
+// Mongodb
 require("./db/init.mongodb");
+require("./configs/db.config").dbInitial();
+// Redis
+// const client = require("./db/connections_redis");
+// client.set("foo", "anonystick");
+// client.get("foo", (err, result) => {
+//   if (err) console.log("redis get error: ", err.message);
+//   console.log("get foo:", result);
+// });
 
 // Routers
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-// // Catch errors 404 and forward them to error handle
-// app.use((req, res, next) => {
-//   const err = new Error("Not found");
-//   err.status = 404;
-//   next(err);
-// });
-
-// // Error handle function
-// app.use(() => {
-//   const error =
-//     app.get("env") === "development" ? { message: err.message } : {};
-//   const status = error.status || 500;
-
-//   // Response to client
-//   return res.status(status).json({
-//     error: {
-//       message: error.message,
-//     },
-//   });
-// });
-
 app.use("/account-server", accountServerRouter);
+
+// Middleware error handling
+app.use(errorHandlingMiddleware);
 
 app.listen(port, () => {
   console.log(`app listening on port localhost:${port}`);

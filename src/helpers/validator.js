@@ -1,10 +1,10 @@
 const Joi = require("joi");
+const ApiError = require("../utils/ApiError");
 
 const paramsValidate = (schema, name) => {
   return (req, res, next) => {
     result = schema.validate({ id: req.params[name] });
-    if (result.error)
-      res.status(400).json({ status: 400, message: result.error });
+    if (result.error) next(new ApiError(400, result.error));
     else {
       if (!req.value) req.value = {};
       if (!req.value["params"]) req.value.params = {};
@@ -38,8 +38,7 @@ const accountServerValidate = (schema) => {
       result = schema.validate(req.body);
     }
     //const result = schema.validate(req.body.accountServer);
-    if (result.error)
-      res.status(400).json({ status: 400, message: result.error });
+    if (result.error) next(new ApiError(400, result.error));
     else {
       if (!req.value) req.value = {};
       if (!req.value["params"]) req.value.params = {};
@@ -74,6 +73,7 @@ const schemas = {
   authSignUpSchema: Joi.object().keys({
     email: Joi.string().email().lowercase().required(),
     password: Joi.string().min(4).max(32).required(),
+    roles: Joi.allow(),
   }),
 };
 

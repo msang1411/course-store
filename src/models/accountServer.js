@@ -1,5 +1,7 @@
-const { model, Schema, Types } = require("mongoose");
+const { model, Schema, Types, Mongoose } = require("mongoose");
 const bcrypt = require("bcryptjs");
+const ApiError = require("../utils/ApiError");
+
 var schema = new Schema(
   {
     email: {
@@ -12,6 +14,7 @@ var schema = new Schema(
       type: String,
       required: true,
     },
+    roles: [{ type: String, ref: "Role" }],
   },
   {
     collection: "account_servers",
@@ -33,14 +36,11 @@ schema.pre("save", async function (next) {
   }
 });
 
-schema.methods.isValidPassword = async function (
-  accountPassword,
-  hashedPassword
-) {
+schema.methods.isValidPassword = async function (accountPassword) {
   try {
-    return await bcrypt.compare(accountPassword, hashedPassword);
+    return await bcrypt.compare(accountPassword, this.password);
   } catch (error) {
-    throw new Error(error);
+    throw new ApiError(400, error.message);
   }
 };
 

@@ -6,6 +6,7 @@ const { JWT_SECRET } = require("../configs/index");
 
 const AccountServer = require("../models/accountServer");
 
+// passport jwt: dùng khi login bằng token
 passport.use(
   new JwtStrategy(
     {
@@ -24,7 +25,7 @@ passport.use(
   )
 );
 
-// passport local
+// passport local: Thường được dùng khi login bằng email, password
 passport.use(
   new LocalStrategy(
     { usernameField: "email" },

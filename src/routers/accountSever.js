@@ -8,7 +8,9 @@ const {
 const AccountServerController = require("../controllers/accountServerController");
 // authentication
 const passport = require("passport");
-const passportConfig = require("../middlewares/passport");
+require("../middlewares/passport");
+const authJwt = require("../middlewares/authJwt");
+const { verifyAccessToken } = require("../authentication/authentication");
 
 router.route("/get-all").get(AccountServerController.getAllAccountServers);
 router
@@ -32,15 +34,11 @@ router
   );
 router
   .route("/secret")
-  .get(
-    passport.authenticate("jwt", { session: false }),
-    AccountServerController.secret
-  );
+  .get(verifyAccessToken, authJwt.isAdmin, AccountServerController.secret);
 router
   .route("/sign-in")
   .post(
     accountServerValidate(schemas.authSignInSchema),
-    passport.authenticate("local", { session: false }),
     AccountServerController.signIn
   );
 router
@@ -49,6 +47,11 @@ router
     accountServerValidate(schemas.authSignUpSchema),
     AccountServerController.signUp
   );
+
+router.route("/refresh-token").post(AccountServerController.refreshToken);
+
+router.route("/logout").delete(AccountServerController.logout);
+
 router
   .route("/:accountId")
   .get(
